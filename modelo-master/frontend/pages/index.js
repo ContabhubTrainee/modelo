@@ -57,8 +57,8 @@ export default function Home() {
                 <a href="#tecnologia" className={styles.navLink}>Tecnologia</a>
                 <a href="#contato" className={styles.navLink}>Contato</a>
               </nav>
-              <Link href="/login">
-                <button className={styles.ctaButton}>Login</button>
+              <Link href="/login" legacyBehavior>
+                <a className={styles.ctaButton}>Login</a>
               </Link>
             </div>
           </div>
@@ -81,11 +81,11 @@ export default function Home() {
                     por interações inteligentes e eficientes.
                   </p>
                   <div className={styles.heroButtons}>
-                    <Link href="/login">
-                      <button className={styles.primaryButton}>Experimentar Grátis</button>
+                    <Link href="/login" legacyBehavior>
+                      <a className={styles.primaryButton}>Experimentar Grátis</a>
                     </Link>
-                    <Link href="/login">
-                      <button className={styles.secondaryButton}>Ver Demonstração</button>
+                    <Link href="/login" legacyBehavior>
+                      <a className={styles.secondaryButton}>Ver Demonstração</a>
                     </Link>
                   </div>
                   <div className={styles.heroStats}>
@@ -245,9 +245,17 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <Link href="/login">
-                  <button className={styles.primaryButton}>Conhecer a Tecnologia</button>
-                </Link>
+                  <button 
+                    className={styles.primaryButton}
+                    onClick={() => {
+                      const element = document.getElementById('tecnologia');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  >
+                    Conhecer a Tecnologia
+                  </button>
                 </div>
                 <div className={styles.technologyVisual}>
                   <div className={styles.techDashboard}>
@@ -332,11 +340,11 @@ export default function Home() {
                   da sua equipe com o AURA 8.
                 </p>
                 <div className={styles.ctaButtons}>
-                  <Link href="/login">
-                    <button className={`${styles.primaryButton} ${styles.large}`}>Experimentar Grátis</button>
+                  <Link href="/login" legacyBehavior>
+                    <a className={`${styles.primaryButton} ${styles.large}`}>Experimentar Grátis</a>
                   </Link>
-                  <Link href="/login">
-                    <button className={`${styles.secondaryButton} ${styles.large}`}>Agendar Demonstração</button>
+                  <Link href="/login" legacyBehavior>
+                    <a className={`${styles.secondaryButton} ${styles.large}`}>Agendar Demonstração</a>
                   </Link>
                 </div>
               </div>
