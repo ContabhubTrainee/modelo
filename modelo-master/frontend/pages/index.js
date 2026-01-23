@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { 
   Brain, 
   Bot, 
@@ -26,9 +27,49 @@ import {
   Globe,
   Headphones
 } from 'lucide-react';
+import ThemeToggle from '../components/menu/ThemeToggle';
 import styles from '../styles/index.module.css';
 
+// Hook personalizado para detectar o tema atual
+const useTheme = () => {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // Verificar se estamos no cliente
+    if (typeof window === 'undefined') return;
+    
+    // Função para verificar o tema atual
+    const checkTheme = () => {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDarkMode = savedTheme === 'dark' || (!savedTheme && prefersDark);
+      setIsDark(isDarkMode);
+    };
+
+    // Verificar tema inicial
+    checkTheme();
+
+    // Listener para mudanças no atributo data-theme (mudanças via toggle)
+    const observer = new MutationObserver(() => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setIsDark(currentTheme === 'dark');
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return isDark;
+};
+
 export default function Home() {
+  const isDark = useTheme();
   return (
     <div>
       <Head>
@@ -43,8 +84,8 @@ export default function Home() {
             <div className={styles.nav}>
               <div className={styles.logo}>
                 <Image
-                  src="/img/logo-aura8.png"
-                  alt="Aura8"
+                  src={isDark ? "/img/logo-aura8-branca.png" : "/img/logo-aura8.png"}
+                  alt="Aura8 - Escritório Contábil com Inteligência Artificial"
                   width={140}
                   height={32}
                   className={styles.logoImage}
@@ -57,9 +98,12 @@ export default function Home() {
                 <a href="#tecnologia" className={styles.navLink}>Tecnologia</a>
                 <a href="#contato" className={styles.navLink}>Contato</a>
               </nav>
-              <Link href="/login" legacyBehavior>
-                <a className={styles.ctaButton}>Login</a>
-              </Link>
+              <div className={styles.headerActions}>
+                <ThemeToggle />
+                <Link href="/login" legacyBehavior>
+                  <a className={styles.ctaButton}>Login</a>
+                </Link>
+              </div>
             </div>
           </div>
         </header>
@@ -359,8 +403,8 @@ export default function Home() {
               <div className={styles.footerBrand}>
                 <div className={styles.logo}>
                   <Image
-                    src="/img/logo-aura8.png"
-                    alt="Aura8"
+                    src={isDark ? "/img/logo-aura8-branca.png" : "/img/logo-aura8.png"}
+                    alt="Aura8 - Escritório Contábil com Inteligência Artificial"
                     width={140}
                     height={32}
                     className={styles.logoImage}
