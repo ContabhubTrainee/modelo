@@ -7,6 +7,12 @@ export function useAuth() {
 
   // Função para sincronizar dados do usuário com localStorage
   const syncUserData = useCallback(() => {
+    // Verificar se estamos no cliente (navegador)
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     console.log('🔄 syncUserData chamado');
     
     const token = localStorage.getItem('token');
@@ -44,6 +50,12 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
+    // Verificar se estamos no cliente (navegador)
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     console.log('🚀 useAuth - useEffect inicial executado');
     // Sincronização inicial
     syncUserData();
@@ -65,12 +77,16 @@ export function useAuth() {
   }, [syncUserData]);
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userData');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+    }
     setUser(null);
   };
 
   const changeCompany = () => {
+    if (typeof window === 'undefined') return;
+    
     // Limpar dados de empresa dentro de userData
     const raw = localStorage.getItem('userData');
     if (raw) {
@@ -88,11 +104,15 @@ export function useAuth() {
 
   const updateUser = (userData) => {
     setUser(userData);
-    localStorage.setItem('userData', JSON.stringify(userData));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userData', JSON.stringify(userData));
+    }
   };
 
   // Função para atualizar dados da empresa selecionada
   const updateCompanyData = useCallback((companyId, companyName, userRole) => {
+    if (typeof window === 'undefined') return;
+    
     console.log('🔄 updateCompanyData chamado com:', { companyId, companyName, userRole });
     
     // Buscar dados atuais do usuário do localStorage
