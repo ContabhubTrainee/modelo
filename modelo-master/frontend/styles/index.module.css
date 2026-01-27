@@ -62,6 +62,41 @@
   gap: 16px;
 }
 
+.userControls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+[data-theme="dark"] .userName {
+  color: #e2e8f0;
+}
+
+.logoutButton {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
+}
+
+.logoutButton:hover {
+  background: #ef4444;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
 .navLink {
   text-decoration: none;
   color: #4b5563;
@@ -93,8 +128,10 @@
   width: 100%;
 }
 
-.ctaButton, .primaryButton,
-.ctaButton > a, .primaryButton > a,
+.ctaButton,
+.primaryButton,
+.ctaButton>a,
+.primaryButton>a,
 button.primaryButton {
   background: linear-gradient(135deg, #8B5CF6, #7C3AED);
   color: white;
@@ -109,8 +146,10 @@ button.primaryButton {
   text-decoration: none;
 }
 
-.ctaButton:hover, .primaryButton:hover,
-.ctaButton > a:hover, .primaryButton > a:hover,
+.ctaButton:hover,
+.primaryButton:hover,
+.ctaButton>a:hover,
+.primaryButton>a:hover,
 button.primaryButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
@@ -122,7 +161,7 @@ button.primaryButton:hover {
 }
 
 .secondaryButton,
-.secondaryButton > a {
+.secondaryButton>a {
   background: transparent;
   color: #8B5CF6;
   border: 2px solid #8B5CF6;
@@ -137,7 +176,7 @@ button.primaryButton:hover {
 }
 
 .secondaryButton:hover,
-.secondaryButton > a:hover {
+.secondaryButton>a:hover {
   background: #8B5CF6;
   color: white;
   transform: translateY(-2px);
@@ -519,8 +558,15 @@ button.primaryButton:hover {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .dashboardMetrics {
@@ -748,6 +794,7 @@ button.primaryButton:hover {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -761,24 +808,26 @@ button.primaryButton:hover {
     gap: 60px;
     text-align: center;
   }
-  
+
   .technologyContent {
     grid-template-columns: 1fr;
     gap: 60px;
   }
-  
-  .card1, .card2, .card3 {
+
+  .card1,
+  .card2,
+  .card3 {
     position: relative;
     top: auto;
     right: auto;
     width: 100%;
     margin-bottom: 20px;
   }
-  
+
   .heroVisual {
     height: auto;
   }
-  
+
   .floatingCards {
     display: grid;
     grid-template-columns: 1fr;
@@ -792,76 +841,76 @@ button.primaryButton:hover {
     gap: 16px;
     padding: 12px 0;
   }
-  
+
   .navMenu {
     order: 3;
     gap: 20px;
   }
-  
+
   .headerActions {
     gap: 12px;
   }
-  
+
   .hero {
     padding: 100px 0 60px;
   }
-  
+
   .heroTitle {
     font-size: 36px;
   }
-  
+
   .heroDescription {
     font-size: 18px;
   }
-  
+
   .heroButtons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .heroStats {
     justify-content: center;
     gap: 32px;
   }
-  
+
   .sectionTitle {
     font-size: 32px;
   }
-  
+
   .sectionDescription {
     font-size: 18px;
   }
-  
+
   .benefitsGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .processSteps {
     grid-template-columns: 1fr;
   }
-  
+
   .stepNumber::after {
     display: none;
   }
-  
+
   .ctaTitle {
     font-size: 32px;
   }
-  
+
   .ctaDescription {
     font-size: 18px;
   }
-  
+
   .ctaButtons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .footerContent {
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  
+
   .footerLinks {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -872,15 +921,15 @@ button.primaryButton:hover {
   .container {
     padding: 0 16px;
   }
-  
+
   .heroTitle {
     font-size: 28px;
   }
-  
+
   .sectionTitle {
     font-size: 28px;
   }
-  
+
   .ctaTitle {
     font-size: 28px;
   }
