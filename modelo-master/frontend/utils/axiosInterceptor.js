@@ -1,5 +1,42 @@
 import axios from 'axios';
 
+<<<<<<< HEAD
+const setupAxiosInterceptors = () => {
+  if (typeof window !== 'undefined') {
+    axios.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    axios.interceptors.response.use(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        if (error.response && error.response.status === 401) {
+          // Token expirado ou inválido
+          localStorage.removeItem('token');
+          localStorage.removeItem('userData');
+          if (window.location.pathname !== '/login') {
+             window.location.href = '/login';
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+};
+
+export default setupAxiosInterceptors;
+=======
 /**
  * Configura os interceptors do axios para adicionar automaticamente
  * o token de autenticação nas requisições e tratar erros de autenticação
@@ -42,3 +79,4 @@ export default function setupAxiosInterceptors() {
     }
   );
 }
+>>>>>>> 2b99da440d03a4eb49a87e5b3ba0368d3658542b
