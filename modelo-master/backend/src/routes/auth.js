@@ -8,7 +8,7 @@ const saltRounds = 10;
 
 // Rota de registro de usuário
 router.post("/register", async (req, res) => {
-  const { email, password, full_name } = req.body;
+  const { email, password, full_name, role = 'visitante' } = req.body;
 
   try {
     // Verifica se o usuário já existe
@@ -23,8 +23,8 @@ router.post("/register", async (req, res) => {
 
     // Insere o usuário no banco de dados
     await pool.query(
-      "INSERT INTO users (email, password_hash, full_name) VALUES (?, ?, ?)",
-      [email, hashedPassword, full_name]
+      "INSERT INTO users (email, password_hash, full_name, role) VALUES (?, ?, ?, ?)",
+      [email, hashedPassword, full_name, role]
     );
 
     res.status(201).json({ message: "Usuário cadastrado com sucesso!" });

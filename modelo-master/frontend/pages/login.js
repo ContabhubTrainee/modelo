@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { Mail, Lock, Eye, EyeOff, LogIn, Check, X, ArrowLeft } from 'lucide-react';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import styles from '../styles/Login.module.css';
 
@@ -48,13 +49,25 @@ export default function Login() {
                 password
             });
 
-            if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('userData', JSON.stringify(response.data.user));
-                router.push('/');
+            if (response.status === 200) {
+                const data = response.data;
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userData', JSON.stringify(data.user));
+                toast.success('Login realizado com sucesso!');
+
+                // Redirecionamento baseado no cargo (role)
+                if (data.user.role === 'admin') {
+                    router.push('/admin/dashboard');
+                } else if (data.user.role === 'contratante') {
+                    router.push('/app/produtos');
+                } else {
+                    router.push('/');
+                }
             }
         } catch (err) {
-            setError(err.response?.data?.error || 'Erro ao realizar login. Verifique suas credenciais.');
+            console.log('Erro no login:', err);
+            const errorMessage = err.response?.data?.error || 'E-mail ou senha inválidos.';
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -70,10 +83,11 @@ export default function Login() {
                 <div className={styles.header}>
                     <div className={styles.logo}>
                         <Image
-                            src="/img/logo-aura8-branca.png"
+                            src="/img/logo-aura8-new.png"
                             alt="Aura8"
-                            width={160}
-                            height={36}
+                            width={180}
+                            height={120}
+                            style={{ objectFit: 'contain' }}
                             priority
                         />
                     </div>
@@ -82,8 +96,6 @@ export default function Login() {
                 </div>
 
                 <form className={styles.form} onSubmit={handleSubmit}>
-                    {error && <div className={styles.errorMessage}>{error}</div>}
-
                     <div className={styles.inputGroup}>
                         <label className={styles.label}>E-mail</label>
                         <div className={styles.inputWrapper}>
@@ -100,12 +112,7 @@ export default function Login() {
                     </div>
 
                     <div className={styles.inputGroup}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <label className={styles.label}>Senha</label>
-                            <Link href="/recuperar-senha" className={styles.forgotPassword}>
-                                Esqueceu a senha?
-                            </Link>
-                        </div>
+                        <label className={styles.label}>Senha</label>
                         <div className={styles.inputWrapper}>
                             <Lock size={18} className={styles.inputIcon} />
                             <input
@@ -124,6 +131,9 @@ export default function Login() {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                         </div>
+                        <Link href="/recuperar-senha" className={styles.forgotPassword}>
+                            Esqueceu a senha?
+                        </Link>
 
                         {/* Validation indicators */}
                         <div className={styles.validationList}>
