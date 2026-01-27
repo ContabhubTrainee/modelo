@@ -1,13 +1,14 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  Brain, 
-  Bot, 
-  Zap, 
-  Sparkles, 
-  Workflow, 
-  Shield, 
+import { useState, useEffect } from 'react';
+import {
+  Brain,
+  Bot,
+  Zap,
+  Sparkles,
+  Workflow,
+  Shield,
   ArrowRight,
   MessageCircle,
   Users,
@@ -26,9 +27,68 @@ import {
   Globe,
   Headphones
 } from 'lucide-react';
+import ThemeToggle from '../components/menu/ThemeToggle';
 import styles from '../styles/index.module.css';
 
+// Hook personalizado para detectar o tema atual
+const useTheme = () => {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // Verificar se estamos no cliente
+    if (typeof window === 'undefined') return;
+
+    // Função para verificar o tema atual
+    const checkTheme = () => {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDarkMode = savedTheme === 'dark' || (!savedTheme && prefersDark);
+      setIsDark(isDarkMode);
+    };
+
+    // Verificar tema inicial
+    checkTheme();
+
+    // Listener para mudanças no atributo data-theme (mudanças via toggle)
+    const observer = new MutationObserver(() => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setIsDark(currentTheme === 'dark');
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return isDark;
+};
+
 export default function Home() {
+  const isDark = useTheme();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Verificar se o usuário está logado ao carregar a página
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error('Erro ao processar dados do usuário:', e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    setUser(null);
+  };
   return (
     <div>
       <Head>
@@ -43,10 +103,11 @@ export default function Home() {
             <div className={styles.nav}>
               <div className={styles.logo}>
                 <Image
-                  src="/img/logo-aura8.png"
-                  alt="Aura8"
+                  src="/img/logo-aura8-new.png"
+                  alt="Aura8 - Escritório Contábil com Inteligência Artificial"
                   width={140}
-                  height={32}
+                  height={90}
+                  style={{ objectFit: 'contain' }}
                   className={styles.logoImage}
                   priority
                 />
@@ -57,9 +118,21 @@ export default function Home() {
                 <a href="#tecnologia" className={styles.navLink}>Tecnologia</a>
                 <a href="#contato" className={styles.navLink}>Contato</a>
               </nav>
-              <Link href="/login">
-                <button className={styles.ctaButton}>Login</button>
-              </Link>
+              <div className={styles.headerActions}>
+                <ThemeToggle />
+                {user ? (
+                  <div className={styles.userControls}>
+                    <span className={styles.userName}>Olá, {user.full_name || user.nome}</span>
+                    <button onClick={handleLogout} className={styles.logoutButton}>
+                      Sair
+                    </button>
+                  </div>
+                ) : (
+                  <Link href="/login" legacyBehavior>
+                    <a className={styles.ctaButton}>Login</a>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -72,20 +145,20 @@ export default function Home() {
               <div className={styles.heroContent}>
                 <div className={styles.heroText}>
                   <h1 className={styles.heroTitle}>
-                    Automatize seu escritório contábil com 
+                    Automatize seu escritório contábil com
                     <span className={styles.gradientText}> Inteligência Artificial</span>
                   </h1>
                   <p className={styles.heroDescription}>
-                    O AURA 8 é uma plataforma de assistentes inteligentes que automatiza 
-                    atendimento e processos operacionais, substituindo tarefas repetitivas 
+                    O AURA 8 é uma plataforma de assistentes inteligentes que automatiza
+                    atendimento e processos operacionais, substituindo tarefas repetitivas
                     por interações inteligentes e eficientes.
                   </p>
                   <div className={styles.heroButtons}>
-                    <Link href="/login">
-                      <button className={styles.primaryButton}>Experimentar Grátis</button>
+                    <Link href="/login" legacyBehavior>
+                      <a className={styles.primaryButton}>Experimentar Grátis</a>
                     </Link>
-                    <Link href="/login">
-                      <button className={styles.secondaryButton}>Ver Demonstração</button>
+                    <Link href="/login" legacyBehavior>
+                      <a className={styles.secondaryButton}>Ver Demonstração</a>
                     </Link>
                   </div>
                   <div className={styles.heroStats}>
@@ -148,7 +221,7 @@ export default function Home() {
                   </div>
                   <h3 className={styles.benefitTitle}>Automação Inteligente</h3>
                   <p className={styles.benefitDescription}>
-                    Substitua tarefas repetitivas por automação inteligente que aprende 
+                    Substitua tarefas repetitivas por automação inteligente que aprende
                     com seus processos e se adapta às necessidades do seu escritório.
                   </p>
                 </div>
@@ -158,7 +231,7 @@ export default function Home() {
                   </div>
                   <h3 className={styles.benefitTitle}>WhatsApp Integrado</h3>
                   <p className={styles.benefitDescription}>
-                    Gerencie múltiplas instâncias do WhatsApp Business em uma única plataforma, 
+                    Gerencie múltiplas instâncias do WhatsApp Business em uma única plataforma,
                     com suporte a mensagens, áudios, imagens e documentos.
                   </p>
                 </div>
@@ -168,7 +241,7 @@ export default function Home() {
                   </div>
                   <h3 className={styles.benefitTitle}>Gestão de Equipes</h3>
                   <p className={styles.benefitDescription}>
-                    Organize equipes, atribua conversas, monitore performance e 
+                    Organize equipes, atribua conversas, monitore performance e
                     distribua automaticamente o atendimento entre seus colaboradores.
                   </p>
                 </div>
@@ -178,7 +251,7 @@ export default function Home() {
                   </div>
                   <h3 className={styles.benefitTitle}>Chat Centralizado</h3>
                   <p className={styles.benefitDescription}>
-                    Interface unificada para gerenciar todas as conversas, com 
+                    Interface unificada para gerenciar todas as conversas, com
                     transferência entre equipes, histórico completo e notificações em tempo real.
                   </p>
                 </div>
@@ -188,7 +261,7 @@ export default function Home() {
                   </div>
                   <h3 className={styles.benefitTitle}>Gestão de Contatos</h3>
                   <p className={styles.benefitDescription}>
-                    Base de contatos inteligente que se integra automaticamente às conversas, 
+                    Base de contatos inteligente que se integra automaticamente às conversas,
                     mantendo histórico completo de interações por cliente.
                   </p>
                 </div>
@@ -198,7 +271,7 @@ export default function Home() {
                   </div>
                   <h3 className={styles.benefitTitle}>Relatórios Detalhados</h3>
                   <p className={styles.benefitDescription}>
-                    Métricas completas de atendimento, tempo de resposta, 
+                    Métricas completas de atendimento, tempo de resposta,
                     produtividade das equipes e satisfação dos clientes.
                   </p>
                 </div>
@@ -245,9 +318,17 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <Link href="/login">
-                  <button className={styles.primaryButton}>Conhecer a Tecnologia</button>
-                </Link>
+                  <button
+                    className={styles.primaryButton}
+                    onClick={() => {
+                      const element = document.getElementById('tecnologia');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  >
+                    Conhecer a Tecnologia
+                  </button>
                 </div>
                 <div className={styles.technologyVisual}>
                   <div className={styles.techDashboard}>
@@ -328,15 +409,12 @@ export default function Home() {
                   Pronto para revolucionar seu escritório contábil?
                 </h2>
                 <p className={styles.ctaDescription}>
-                  Comece hoje mesmo a automatizar seus processos e aumentar a produtividade 
+                  Comece hoje mesmo a automatizar seus processos e aumentar a produtividade
                   da sua equipe com o AURA 8.
                 </p>
                 <div className={styles.ctaButtons}>
-                  <Link href="/login">
-                    <button className={`${styles.primaryButton} ${styles.large}`}>Experimentar Grátis</button>
-                  </Link>
-                  <Link href="/login">
-                    <button className={`${styles.secondaryButton} ${styles.large}`}>Agendar Demonstração</button>
+                  <Link href="/vendas" legacyBehavior>
+                    <a className={`${styles.primaryButton} ${styles.large}`}>Adquira já!</a>
                   </Link>
                 </div>
               </div>
@@ -351,10 +429,11 @@ export default function Home() {
               <div className={styles.footerBrand}>
                 <div className={styles.logo}>
                   <Image
-                    src="/img/logo-aura8.png"
-                    alt="Aura8"
+                    src="/img/logo-aura8-new.png"
+                    alt="Aura8 - Escritório Contábil com Inteligência Artificial"
                     width={140}
-                    height={32}
+                    height={80}
+                    style={{ objectFit: 'contain' }}
                     className={styles.logoImage}
                     priority
                   />

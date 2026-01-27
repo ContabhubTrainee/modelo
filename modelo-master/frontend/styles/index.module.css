@@ -1,5 +1,8 @@
 .app {
   min-height: 100vh;
+  background: var(--color-bg-primary, #ffffff);
+  color: var(--color-text-primary, #1f2937);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -19,6 +22,11 @@
   border-bottom: 1px solid rgba(139, 92, 246, 0.1);
   z-index: 1000;
   transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .header {
+  background: rgba(26, 26, 46, 0.95);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .nav {
@@ -48,12 +56,57 @@
   gap: 32px;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.userControls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+[data-theme="dark"] .userName {
+  color: #e2e8f0;
+}
+
+.logoutButton {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
+}
+
+.logoutButton:hover {
+  background: #ef4444;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
 .navLink {
   text-decoration: none;
   color: #4b5563;
   font-weight: 500;
   transition: color 0.3s ease;
   position: relative;
+}
+
+[data-theme="dark"] .navLink {
+  color: #9ca3af;
 }
 
 .navLink:hover {
@@ -75,7 +128,11 @@
   width: 100%;
 }
 
-.ctaButton, .primaryButton {
+.ctaButton,
+.primaryButton,
+.ctaButton>a,
+.primaryButton>a,
+button.primaryButton {
   background: linear-gradient(135deg, #8B5CF6, #7C3AED);
   color: white;
   border: none;
@@ -85,9 +142,15 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
+  display: inline-block;
+  text-decoration: none;
 }
 
-.ctaButton:hover, .primaryButton:hover {
+.ctaButton:hover,
+.primaryButton:hover,
+.ctaButton>a:hover,
+.primaryButton>a:hover,
+button.primaryButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
 }
@@ -97,7 +160,8 @@
   font-size: 16px;
 }
 
-.secondaryButton {
+.secondaryButton,
+.secondaryButton>a {
   background: transparent;
   color: #8B5CF6;
   border: 2px solid #8B5CF6;
@@ -107,9 +171,12 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
+  display: inline-block;
+  text-decoration: none;
 }
 
-.secondaryButton:hover {
+.secondaryButton:hover,
+.secondaryButton>a:hover {
   background: #8B5CF6;
   color: white;
   transform: translateY(-2px);
@@ -126,6 +193,10 @@
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   position: relative;
   overflow: hidden;
+}
+
+[data-theme="dark"] .hero {
+  background: linear-gradient(135deg, #1A1A2E 0%, #1d1d33 100%);
 }
 
 .hero::before {
@@ -156,6 +227,10 @@
   color: #1f2937;
 }
 
+[data-theme="dark"] .heroTitle {
+  color: #f0f2f5;
+}
+
 .gradientText {
   background: linear-gradient(135deg, #8B5CF6, #7C3AED);
   -webkit-background-clip: text;
@@ -168,6 +243,10 @@
   color: #6b7280;
   margin-bottom: 32px;
   line-height: 1.6;
+}
+
+[data-theme="dark"] .heroDescription {
+  color: #9ca3af;
 }
 
 .heroButtons {
@@ -199,6 +278,10 @@
   font-weight: 500;
 }
 
+[data-theme="dark"] .statLabel {
+  color: #9ca3af;
+}
+
 /* Hero Visual */
 .heroVisual {
   position: relative;
@@ -219,6 +302,12 @@
   border: 1px solid rgba(139, 92, 246, 0.1);
   transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease forwards;
+}
+
+[data-theme="dark"] .card {
+  background: #2A2A4A;
+  border-color: rgba(139, 92, 246, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .card:hover {
@@ -259,15 +348,27 @@
   color: #1f2937;
 }
 
+[data-theme="dark"] .card h3 {
+  color: #f0f2f5;
+}
+
 .card p {
   color: #6b7280;
   font-size: 14px;
+}
+
+[data-theme="dark"] .card p {
+  color: #9ca3af;
 }
 
 /* Benefits Section */
 .benefits {
   padding: 100px 0;
   background: white;
+}
+
+[data-theme="dark"] .benefits {
+  background: #1A1A2E;
 }
 
 .sectionHeader {
@@ -282,11 +383,19 @@
   color: #1f2937;
 }
 
+[data-theme="dark"] .sectionTitle {
+  color: #f0f2f5;
+}
+
 .sectionDescription {
   font-size: 20px;
   color: #6b7280;
   max-width: 600px;
   margin: 0 auto;
+}
+
+[data-theme="dark"] .sectionDescription {
+  color: #9ca3af;
 }
 
 .benefitsGrid {
@@ -302,6 +411,11 @@
   text-align: center;
   border: 1px solid rgba(139, 92, 246, 0.1);
   transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .benefitCard {
+  background: #2A2A4A;
+  border-color: rgba(139, 92, 246, 0.2);
 }
 
 .benefitCard:hover {
@@ -324,15 +438,27 @@
   color: #1f2937;
 }
 
+[data-theme="dark"] .benefitTitle {
+  color: #f0f2f5;
+}
+
 .benefitDescription {
   color: #6b7280;
   line-height: 1.6;
+}
+
+[data-theme="dark"] .benefitDescription {
+  color: #9ca3af;
 }
 
 /* Technology Section */
 .technology {
   padding: 100px 0;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+[data-theme="dark"] .technology {
+  background: linear-gradient(135deg, #1A1A2E 0%, #1d1d33 100%);
 }
 
 .technologyContent {
@@ -367,9 +493,17 @@
   color: #1f2937;
 }
 
+[data-theme="dark"] .techContent h4 {
+  color: #f0f2f5;
+}
+
 .techContent p {
   color: #6b7280;
   font-size: 14px;
+}
+
+[data-theme="dark"] .techContent p {
+  color: #9ca3af;
 }
 
 /* Technology Visual */
@@ -379,6 +513,12 @@
   padding: 32px;
   box-shadow: 0 20px 60px rgba(139, 92, 246, 0.1);
   border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+[data-theme="dark"] .techDashboard {
+  background: #2A2A4A;
+  border-color: rgba(139, 92, 246, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .dashboardHeader {
@@ -394,6 +534,10 @@
   font-size: 18px;
   font-weight: 600;
   color: #1f2937;
+}
+
+[data-theme="dark"] .dashboardTitle {
+  color: #f0f2f5;
 }
 
 .dashboardStatus {
@@ -414,8 +558,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .dashboardMetrics {
@@ -432,6 +583,11 @@
   border: 1px solid rgba(139, 92, 246, 0.1);
 }
 
+[data-theme="dark"] .metric {
+  background: linear-gradient(135deg, #1d1d33, #1A1A2E);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
 .metricValue {
   display: block;
   font-size: 28px;
@@ -446,10 +602,18 @@
   font-weight: 500;
 }
 
+[data-theme="dark"] .metricLabel {
+  color: #9ca3af;
+}
+
 /* Process Section */
 .process {
   padding: 100px 0;
   background: white;
+}
+
+[data-theme="dark"] .process {
+  background: #1A1A2E;
 }
 
 .processSteps {
@@ -500,9 +664,17 @@
   color: #1f2937;
 }
 
+[data-theme="dark"] .stepTitle {
+  color: #f0f2f5;
+}
+
 .stepDescription {
   color: #6b7280;
   line-height: 1.6;
+}
+
+[data-theme="dark"] .stepDescription {
+  color: #9ca3af;
 }
 
 /* CTA Section */
@@ -622,6 +794,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -635,24 +808,26 @@
     gap: 60px;
     text-align: center;
   }
-  
+
   .technologyContent {
     grid-template-columns: 1fr;
     gap: 60px;
   }
-  
-  .card1, .card2, .card3 {
+
+  .card1,
+  .card2,
+  .card3 {
     position: relative;
     top: auto;
     right: auto;
     width: 100%;
     margin-bottom: 20px;
   }
-  
+
   .heroVisual {
     height: auto;
   }
-  
+
   .floatingCards {
     display: grid;
     grid-template-columns: 1fr;
@@ -666,72 +841,76 @@
     gap: 16px;
     padding: 12px 0;
   }
-  
+
   .navMenu {
     order: 3;
     gap: 20px;
   }
-  
+
+  .headerActions {
+    gap: 12px;
+  }
+
   .hero {
     padding: 100px 0 60px;
   }
-  
+
   .heroTitle {
     font-size: 36px;
   }
-  
+
   .heroDescription {
     font-size: 18px;
   }
-  
+
   .heroButtons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .heroStats {
     justify-content: center;
     gap: 32px;
   }
-  
+
   .sectionTitle {
     font-size: 32px;
   }
-  
+
   .sectionDescription {
     font-size: 18px;
   }
-  
+
   .benefitsGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .processSteps {
     grid-template-columns: 1fr;
   }
-  
+
   .stepNumber::after {
     display: none;
   }
-  
+
   .ctaTitle {
     font-size: 32px;
   }
-  
+
   .ctaDescription {
     font-size: 18px;
   }
-  
+
   .ctaButtons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .footerContent {
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  
+
   .footerLinks {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -742,15 +921,15 @@
   .container {
     padding: 0 16px;
   }
-  
+
   .heroTitle {
     font-size: 28px;
   }
-  
+
   .sectionTitle {
     font-size: 28px;
   }
-  
+
   .ctaTitle {
     font-size: 28px;
   }
