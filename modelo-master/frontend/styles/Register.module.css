@@ -1,0 +1,6 @@
+@import url('./Login.module.css');
+
+.registerCard {
+    composes: loginCard from './Login.module.css';
+    max-width: 500px;
+}
