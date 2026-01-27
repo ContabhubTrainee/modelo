@@ -103,10 +103,11 @@ export default function Home() {
             <div className={styles.nav}>
               <div className={styles.logo}>
                 <Image
-                  src={isDark ? "/img/logo-aura8-branca.png" : "/img/logo-aura8.png"}
+                  src="/img/logo-aura8-new.png"
                   alt="Aura8 - Escritório Contábil com Inteligência Artificial"
                   width={140}
-                  height={32}
+                  height={90}
+                  style={{ objectFit: 'contain' }}
                   className={styles.logoImage}
                   priority
                 />
@@ -412,11 +413,8 @@ export default function Home() {
                   da sua equipe com o AURA 8.
                 </p>
                 <div className={styles.ctaButtons}>
-                  <Link href="/login" legacyBehavior>
-                    <a className={`${styles.primaryButton} ${styles.large}`}>Experimentar Grátis</a>
-                  </Link>
-                  <Link href="/login" legacyBehavior>
-                    <a className={`${styles.secondaryButton} ${styles.large}`}>Agendar Demonstração</a>
+                  <Link href="/vendas" legacyBehavior>
+                    <a className={`${styles.primaryButton} ${styles.large}`}>Adquira já!</a>
                   </Link>
                 </div>
               </div>
@@ -431,10 +429,11 @@ export default function Home() {
               <div className={styles.footerBrand}>
                 <div className={styles.logo}>
                   <Image
-                    src={isDark ? "/img/logo-aura8-branca.png" : "/img/logo-aura8.png"}
+                    src="/img/logo-aura8-new.png"
                     alt="Aura8 - Escritório Contábil com Inteligência Artificial"
                     width={140}
-                    height={32}
+                    height={80}
+                    style={{ objectFit: 'contain' }}
                     className={styles.logoImage}
                     priority
                   />

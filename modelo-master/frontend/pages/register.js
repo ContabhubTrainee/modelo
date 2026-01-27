@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { Mail, Lock, User, Eye, EyeOff, UserPlus, Check, X, ArrowLeft } from 'lucide-react';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import styles from '../styles/Login.module.css'; // Reusing login styles
 
@@ -46,18 +47,21 @@ export default function Register() {
 
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-            const response = await axios.post(`${apiUrl}/auth/register`, {
+            await axios.post(`${apiUrl}/auth/register`, {
                 full_name: fullName,
                 email,
                 password
             });
 
-            setSuccess('Conta criada com sucesso! Redirecionando para o login...');
+            toast.success('Cadastro concluído com sucesso, você será redirecionado para a página inicial.');
+
             setTimeout(() => {
                 router.push('/login');
-            }, 2000);
+            }, 3000);
         } catch (err) {
-            setError(err.response?.data?.error || 'Erro ao realizar cadastro. Tente novamente.');
+            console.log('Erro no cadastro:', err);
+            const errorMessage = err.response?.data?.error || 'Erro ao realizar cadastro. Tente novamente.';
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -73,10 +77,11 @@ export default function Register() {
                 <div className={styles.header}>
                     <div className={styles.logo}>
                         <Image
-                            src="/img/logo-aura8-branca.png"
+                            src="/img/logo-aura8-new.png"
                             alt="Aura8"
-                            width={160}
-                            height={36}
+                            width={180}
+                            height={120}
+                            style={{ objectFit: 'contain' }}
                             priority
                         />
                     </div>
@@ -85,9 +90,6 @@ export default function Register() {
                 </div>
 
                 <form className={styles.form} onSubmit={handleSubmit}>
-                    {error && <div className={styles.errorMessage}>{error}</div>}
-                    {success && <div style={{ color: '#22c55e', fontSize: '14px', marginBottom: '10px', textAlign: 'center' }}>{success}</div>}
-
                     <div className={styles.inputGroup}>
                         <label className={styles.label}>Nome Completo</label>
                         <div className={styles.inputWrapper}>
