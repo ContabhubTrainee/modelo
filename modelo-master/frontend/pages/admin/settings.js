@@ -126,8 +126,11 @@ export default function CompanySettings() {
                 <button style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Users size={20} /> Projetos
                 </button>
-                <button style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <PieChart size={20} /> Analytics
+                <button
+                    onClick={() => router.push('/admin/notes')}
+                    style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                >
+                    <PieChart size={20} /> Anotações
                 </button>
                 <button style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Settings size={20} /> Configurações

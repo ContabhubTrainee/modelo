@@ -196,8 +196,11 @@ export default function AdminDashboard() {
                 <button style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Users size={20} /> Projetos
                 </button>
-                <button style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <PieChart size={20} /> Analytics
+                <button
+                    onClick={() => router.push('/admin/notes')}
+                    style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                >
+                    <PieChart size={20} /> Anotações
                 </button>
                 <button
                     onClick={() => router.push(`/admin/settings?company_id=${company.id}`)}
@@ -269,12 +272,6 @@ export default function AdminDashboard() {
                 <div style={{ marginBottom: '40px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Metas da Empresa</h2>
-                        <button
-                            onClick={() => setShowGoalModal(true)}
-                            style={{ background: '#6366f1', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
-                        >
-                            + Nova Meta
-                        </button>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
