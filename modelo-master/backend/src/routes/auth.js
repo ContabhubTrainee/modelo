@@ -23,8 +23,8 @@ router.post("/register", async (req, res) => {
 
     // Insere o usuário no banco de dados
     await pool.query(
-      "INSERT INTO users (email, password_hash, full_name, role) VALUES (?, ?, ?, ?)",
-      [email, hashedPassword, full_name, role]
+      "INSERT INTO users (email, password_hash, full_name) VALUES (?, ?, ?)",
+      [email, hashedPassword, full_name]
     );
 
     res.status(201).json({ message: "Usuário cadastrado com sucesso!" });
@@ -46,8 +46,7 @@ router.post("/login", async (req, res) => {
         email, 
         full_name,
         password_hash,
-         avatar_url,
-         role
+         avatar_url
       FROM users
       WHERE email = ?
     `, [email]);
@@ -79,8 +78,7 @@ router.post("/login", async (req, res) => {
         id: userData.id,
         email: userData.email,
         full_name: userData.full_name,
-        avatar_url: userData.avatar_url,
-        role: userData.role
+        avatar_url: userData.avatar_url
       }
     });
   } catch (error) {
