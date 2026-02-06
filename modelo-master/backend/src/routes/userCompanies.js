@@ -6,15 +6,22 @@ const router = express.Router();
 // Listar todos os vínculos (opcionalmente filtrar por user_id ou company_id)
 router.get("/", async (req, res) => {
     const { user_id, company_id } = req.query;
-    let query = "SELECT * FROM user_companies WHERE 1=1";
+    let query = `
+        SELECT uc.*, u.full_name as user_name, c.name as company_name 
+        FROM user_companies uc
+        JOIN users u ON uc.user_id = u.id
+        JOIN companies c ON uc.company_id = c.id
+        WHERE 1=1
+    `;
     const params = [];
 
     if (user_id) {
-        query += " AND user_id = ?";
+        query += " AND uc.user_id = ?";
         params.push(user_id);
     }
+
     if (company_id) {
-        query += " AND company_id = ?";
+        query += " AND uc.company_id = ?";
         params.push(company_id);
     }
 
@@ -23,7 +30,7 @@ router.get("/", async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Erro ao listar vínculos." });
+        res.status(500).json({ error: "Erro ao listar vínculos.", details: error.message, sqlMessage: error.sqlMessage });
     }
 });
 
