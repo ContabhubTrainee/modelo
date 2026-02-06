@@ -10,6 +10,7 @@ const companiesRoutes = require('./companies');
 
 router.use('/auth', authRoutes);
 router.use('/companies', companiesRoutes);
+router.use('/user-companies', require('./userCompanies'));
 
 
 

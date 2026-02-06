@@ -56,13 +56,8 @@ export default function Login() {
                 toast.success('Login realizado com sucesso!');
 
                 // Redirecionamento baseado no cargo (role)
-                if (data.user.role === 'admin') {
-                    router.push('/admin/dashboard');
-                } else if (data.user.role === 'contratante') {
-                    router.push('/app/produtos');
-                } else {
-                    router.push('/');
-                }
+                // Se o usuário pedir, redireciona para a lista de empresas
+                router.push('/minhas-empresas');
             }
         } catch (err) {
             console.log('Erro no login:', err);
