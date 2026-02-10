@@ -16,6 +16,7 @@ export default function MinhasEmpresas() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [availableCompanies, setAvailableCompanies] = useState([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState('');
+    const [selectedRole, setSelectedRole] = useState('membro');
     const [isLinking, setIsLinking] = useState(false);
 
     useEffect(() => {
@@ -88,6 +89,7 @@ export default function MinhasEmpresas() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedCompanyId('');
+        setSelectedRole('membro');
     };
 
     const handleLinkCompany = async () => {
@@ -100,7 +102,7 @@ export default function MinhasEmpresas() {
             await axios.post(`${apiUrl}/user-companies`, {
                 user_id: user.id,
                 company_id: selectedCompanyId,
-                role: 'visitante' // Default role
+                role: selectedRole
             });
 
             toast.success("Empresa vinculada com sucesso!");
@@ -246,6 +248,20 @@ export default function MinhasEmpresas() {
                                     Nenhuma nova empresa disponível para vincular.
                                 </p>
                             )}
+                        </div>
+
+                        <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                            <label className={styles.label}>Nível de Acesso (Role)</label>
+                            <select
+                                className={styles.select}
+                                value={selectedRole}
+                                onChange={(e) => setSelectedRole(e.target.value)}
+                            >
+                                <option value="dono">Dono</option>
+                                <option value="administrador">Administrador</option>
+                                <option value="membro">Membro</option>
+                                <option value="visitante">Visitante</option>
+                            </select>
                         </div>
                     </div>
 

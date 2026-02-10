@@ -12,6 +12,7 @@ router.use('/auth', authRoutes);
 router.use('/companies', companiesRoutes);
 router.use('/user-companies', require('./userCompanies'));
 router.use('/goals', require('./goals'));
+router.use('/projects', require('./projects'));
 
 
 

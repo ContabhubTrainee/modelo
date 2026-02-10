@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { LayoutDashboard, Users, Settings, PieChart, Bell, Search, LogOut, ArrowLeft, Trash } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, PieChart, Bell, Search, LogOut, ArrowLeft, Trash, Pencil, FolderKanban } from 'lucide-react';
 import axios from 'axios';
 
 export default function AdminDashboard() {
@@ -10,8 +10,11 @@ export default function AdminDashboard() {
     const [user, setUser] = useState(null);
     const [company, setCompany] = useState(null);
     const [goals, setGoals] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [showGoalModal, setShowGoalModal] = useState(false);
-    const [newGoal, setNewGoal] = useState({ title: '', target_value: '', deadline: '', responsible_id: '' });
+    const [showEditGoalModal, setShowEditGoalModal] = useState(false);
+    const [editingGoal, setEditingGoal] = useState(null);
+    const [newGoal, setNewGoal] = useState({ title: '', target_value: '', deadline: '', responsible_id: '', current_value: 0, project_id: '' });
     const [loading, setLoading] = useState(true);
     const [companyUsers, setCompanyUsers] = useState([]);
 
@@ -46,16 +49,46 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleEditGoal = (goal) => {
+        setEditingGoal({
+            ...goal,
+            deadline: goal.deadline ? new Date(goal.deadline).toISOString().split('T')[0] : ''
+        });
+        setShowEditGoalModal(true);
+    };
+
+    const handleUpdateGoal = async (e) => {
+        e.preventDefault();
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            await axios.put(`${apiUrl}/goals/${editingGoal.id}`, {
+                ...editingGoal,
+                target_value: parseFloat(editingGoal.target_value),
+                current_value: parseFloat(editingGoal.current_value || 0)
+            });
+            setShowEditGoalModal(false);
+            setEditingGoal(null);
+            fetchGoals(company.id);
+            alert("Meta atualizada com sucesso!");
+        } catch (error) {
+            console.error("Erro ao atualizar meta:", error);
+            alert("Erro ao atualizar meta.");
+        }
+    };
+
     const handleCreateGoal = async (e) => {
         e.preventDefault();
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
             await axios.post(`${apiUrl}/goals`, {
                 company_id: company.id,
-                ...newGoal
+                ...newGoal,
+                current_value: parseFloat(newGoal.current_value || 0),
+                target_value: parseFloat(newGoal.target_value)
             });
             setShowGoalModal(false);
-            setNewGoal({ title: '', target_value: '', deadline: '', responsible_id: '' });
+            setNewGoal({ title: '', target_value: '', deadline: '', responsible_id: '', current_value: 0, project_id: '' });
             fetchGoals(company.id);
             alert("Meta criada com sucesso!");
 
@@ -107,59 +140,31 @@ export default function AdminDashboard() {
             const companyRes = await axios.get(`${apiUrl}/companies/${companyId}`);
             setCompany(companyRes.data);
 
+            fetchGoals(companyId);
+            fetchProjects(companyId);
+            fetchCompanyUsers(companyId);
+            setLoading(false);
         } catch (error) {
             console.error("Erro ao carregar dashboard:", error);
             router.push('/minhas-empresas');
-        } finally {
-            setLoading(false);
-            if (companyId) fetchCompanyUsers(companyId);
         }
     };
 
+    const fetchProjects = async (companyId) => {
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${apiUrl}/projects?company_id=${companyId}`);
+            setProjects(res.data);
+        } catch (error) {
+            console.error("Erro ao buscar projetos:", error);
+        }
+    };
 
     const fetchCompanyUsers = async (companyId) => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             const res = await axios.get(`${apiUrl}/user-companies?company_id=${companyId}`);
-
-            // Fetch checks for details... to keep it simple we can just use the returned list if the backend returns enough info.
-            // But usually /user-companies returns links. We might need to fetch user details or update the route.
-            // Actually, checking backend/src/routes/userCompanies.js...
-            // It returns joined data! (companies usually, but let's check if it returns user data when querying by company_id)
-
-            // Wait, standard route likely returns basic link info. Let's assume we need to join user data.
-            // Based on previous chats, /user-companies filters. But does it join user table?
-            // To be safe and quick, I will rely on what I can see or assume simple fetching.
-            // Let's assume we need to fetch user details for now, or just trust the new goals route handles display.
-            // But we need the list for the SELECT dropdown.
-
-            // Let's modify the frontend to fetch users. Ideally we would have a route for this.
-            // Using /user-companies?company_id=... is good.
-            // Let's assume the link response has user_id, and maybe user details if I joined them.
-            // Let's check userCompanies.js content if possible? No time, let's just implement a robust fetch.
-
-            const links = res.data;
-            // Now fetch details for each user?
-            const usersWithDetails = await Promise.all(links.map(async (link) => {
-                try {
-                    // We don't have a route like /users/:id easily accessible maybe?
-                    // Actually we don't usually expose /users/:id for public/auth.
-                    // But we might need it.
-                    // Let's assume for this specific task, we might need to rely on what available.
-                    // Ah, I can filter /user-companies and if I need names, I might need to update the backend route for user-companies to join user table.
-                    // Let's doing that update is safer implicitly. 
-                    // OR, I can use the same logic as "Minhas Empresas" but mirrored.
-                    return { id: link.user_id, name: `User ${link.user_id}` }; // Placeholder if no name
-                } catch (e) { return null; }
-            }));
-            // Wait, this is bad UX. "User 1".
-            // I should update userCompanies route to return user name?
-            // Creating a specialized function here to fetch users properly
-
-            // Actually, I'll update the backend route /user-companies to include user name in userCompanies.js
-            // But I am in frontend file now.
-            // Let's assume I will update backend to return `user_name` in the link objects.
-            setCompanyUsers(links);
+            setCompanyUsers(res.data);
         } catch (error) {
             console.error("Erro ao buscar equipe:", error);
         }
@@ -177,6 +182,13 @@ export default function AdminDashboard() {
 
     if (loading || !user || !company) return <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>Carregando painel...</div>;
 
+    const navItems = [
+        { icon: LayoutDashboard, label: 'Dashboard', path: `/admin/dashboard?company_id=${company.id}`, active: true },
+        { icon: FolderKanban, label: 'Projetos', path: `/admin/projects?company_id=${company.id}` },
+        { icon: PieChart, label: 'Anotações', path: `/admin/notes?company_id=${company.id}` },
+        { icon: Settings, label: 'Configurações', path: `/admin/settings?company_id=${company.id}` },
+    ];
+
     return (
         <div style={{ background: '#0f172a', minHeight: '100vh', color: '#fff', display: 'flex' }}>
             <Head>
@@ -190,24 +202,26 @@ export default function AdminDashboard() {
                     {company.name}
                 </div>
 
-                <button style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <LayoutDashboard size={20} /> Dashboard
-                </button>
-                <button style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Users size={20} /> Projetos
-                </button>
-                <button
-                    onClick={() => router.push('/admin/notes')}
-                    style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
-                >
-                    <PieChart size={20} /> Anotações
-                </button>
-                <button
-                    onClick={() => router.push(`/admin/settings?company_id=${company.id}`)}
-                    style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
-                >
-                    <Settings size={20} /> Configurações
-                </button>
+                {navItems.map((item, index) => (
+                    <button
+                        key={index}
+                        onClick={() => router.push(item.path)}
+                        style={{
+                            background: item.active ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                            color: item.active ? '#818cf8' : '#94a3b8',
+                            border: 'none',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <item.icon size={20} /> {item.label}
+                    </button>
+                ))}
 
                 <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <button
@@ -250,13 +264,12 @@ export default function AdminDashboard() {
 
 
 
-                // ... (rest of the file until main content)
+                {/* ... (rest of the file until main content) */}
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
                     {/* Existing cards */}
                     {[
-
-                        { label: 'Projetos Hoje', value: '12', color: '#6366f1' },
+                        { label: 'Projetos Ativos', value: projects.length.toString(), color: '#6366f1' },
                         { label: 'Conversões', value: '8', color: '#10b981' },
                         { label: 'Receita Est.', value: 'R$ 4.200', color: '#f59e0b' },
                         { label: 'Tempo Médio', value: '4m 12s', color: '#ec4899' }
@@ -272,6 +285,12 @@ export default function AdminDashboard() {
                 <div style={{ marginBottom: '40px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Metas da Empresa</h2>
+                        <button
+                            onClick={() => setShowGoalModal(true)}
+                            style={{ background: '#6366f1', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+                        >
+                            + Nova Meta
+                        </button>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
@@ -281,7 +300,14 @@ export default function AdminDashboard() {
                                 <div key={goal.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '24px', borderRadius: '16px', position: 'relative' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                         <div>
-                                            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>{goal.title}</div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                <h3 style={{ fontWeight: 'bold', fontSize: '18px', margin: 0 }}>{goal.title}</h3>
+                                                {goal.project_name && (
+                                                    <span style={{ fontSize: '10px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
+                                                        {goal.project_name}
+                                                    </span>
+                                                )}
+                                            </div>
                                             {goal.responsible_name && (
                                                 <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                     <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#6366f1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>
@@ -292,13 +318,22 @@ export default function AdminDashboard() {
                                             )}
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                                            <button
-                                                onClick={() => handleDeleteGoal(goal.id)}
-                                                style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
-                                                title="Excluir meta"
-                                            >
-                                                <Trash size={16} />
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={() => handleEditGoal(goal)}
+                                                    style={{ background: 'transparent', border: 'none', color: '#6366f1', cursor: 'pointer', padding: '4px' }}
+                                                    title="Editar meta"
+                                                >
+                                                    <Pencil size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteGoal(goal.id)}
+                                                    style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
+                                                    title="Excluir meta"
+                                                >
+                                                    <Trash size={16} />
+                                                </button>
+                                            </div>
                                             <div style={{ fontSize: '12px', color: '#94a3b8', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px', height: 'fit-content' }}>
                                                 {goal.deadline ? new Date(goal.deadline).toLocaleDateString() : 'Sem prazo'}
                                             </div>
@@ -324,10 +359,67 @@ export default function AdminDashboard() {
                 </div >
 
                 <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', overflow: 'hidden' }}>
-                    <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: 'bold' }}>Últimos Projetos Cadastrados</div>
-                    {/* ... (rest of leads table) */}
-                    <div style={{ padding: '24px', color: '#94a3b8', textAlign: 'center' }}>
-                        Nenhum projeto encontrado para {company.name} ainda.
+                    <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Últimos Projetos Cadastrados</span>
+                        <button
+                            onClick={() => router.push(`/admin/projects?company_id=${company.id}`)}
+                            style={{ background: 'transparent', border: 'none', color: '#6366f1', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}
+                        >
+                            Ver Todos
+                        </button>
+                    </div>
+
+                    <div style={{ padding: '0' }}>
+                        {projects.length > 0 ? (
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#64748b' }}>
+                                        <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600' }}>PROJETO</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600' }}>MEMBROS</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600' }}>STATUS</th>
+                                        <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '600' }}>CRIADO EM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {projects.slice(0, 5).map((project) => (
+                                        <tr key={project.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <div style={{ fontWeight: '600', fontSize: '14px' }}>{project.name}</div>
+                                                <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>
+                                                    {project.description || 'Sem descrição'}
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <div style={{ display: 'flex', gap: '4px' }}>
+                                                    {project.members && project.members.slice(0, 3).map((member, idx) => (
+                                                        <div key={idx} title={member.full_name} style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid #1e293b' }}>
+                                                            {member.full_name[0]}
+                                                        </div>
+                                                    ))}
+                                                    {project.members && project.members.length > 3 && (
+                                                        <div style={{ fontSize: '10px', color: '#64748b', display: 'flex', alignItems: 'center', paddingLeft: '4px' }}>
+                                                            +{project.members.length - 3}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <span style={{ fontSize: '10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                                                    {project.status === 'active' ? 'Ativo' : project.status}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '16px 24px', fontSize: '12px', color: '#64748b' }}>
+                                                {new Date(project.created_at).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <div style={{ padding: '40px', color: '#94a3b8', textAlign: 'center' }}>
+                                Nenhum projeto encontrado para {company.name} ainda.
+                            </div>
+                        )}
                     </div>
                 </div>
             </main >
@@ -337,7 +429,7 @@ export default function AdminDashboard() {
                 showGoalModal && (
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
                         <div style={{ background: '#1e293b', padding: '32px', borderRadius: '16px', width: '400px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '24px' }}>Últimos Projetos Cadastrados</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '24px' }}>Nova Meta</h2>
                             <form onSubmit={handleCreateGoal}>
                                 <div style={{ marginBottom: '16px' }}>
                                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Título</label>
@@ -359,6 +451,32 @@ export default function AdminDashboard() {
                                         required
                                     />
                                 </div>
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Valor atual (Opcional)</label>
+                                    <input
+                                        type="number"
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={newGoal.current_value}
+                                        onChange={e => setNewGoal({ ...newGoal, current_value: e.target.value })}
+                                    />
+                                </div>
+
+                                {newGoal.target_value > 0 && (
+                                    <div style={{ marginBottom: '24px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>
+                                            <span>Progresso</span>
+                                            <span>{Math.round(Math.min((newGoal.current_value / newGoal.target_value) * 100, 100))}%</span>
+                                        </div>
+                                        <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                                            <div style={{
+                                                height: '100%',
+                                                width: `${Math.min((newGoal.current_value / newGoal.target_value) * 100, 100)}%`,
+                                                background: '#10b981',
+                                                transition: 'width 0.3s'
+                                            }}></div>
+                                        </div>
+                                    </div>
+                                )}
                                 <div style={{ marginBottom: '24px' }}>
                                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Prazo</label>
                                     <input
@@ -383,6 +501,21 @@ export default function AdminDashboard() {
                                         ))}
                                     </select>
                                 </div>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Projeto (Opcional)</label>
+                                    <select
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={newGoal.project_id}
+                                        onChange={e => setNewGoal({ ...newGoal, project_id: e.target.value })}
+                                    >
+                                        <option value="">Nenhum projeto</option>
+                                        {projects.map(p => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                                     <button
                                         type="button"
@@ -396,6 +529,123 @@ export default function AdminDashboard() {
                                         style={{ background: '#6366f1', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
                                     >
                                         Criar Meta
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Edit Goal Modal */}
+            {
+                showEditGoalModal && editingGoal && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+                        <div style={{ background: '#1e293b', padding: '32px', borderRadius: '16px', width: '400px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '24px' }}>Editar Meta</h2>
+                            <form onSubmit={handleUpdateGoal}>
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Título</label>
+                                    <input
+                                        type="text"
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={editingGoal.title}
+                                        onChange={e => setEditingGoal({ ...editingGoal, title: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Meta (Valor)</label>
+                                    <input
+                                        type="number"
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={editingGoal.target_value}
+                                        onChange={e => setEditingGoal({ ...editingGoal, target_value: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Valor atual</label>
+                                    <input
+                                        type="number"
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={editingGoal.current_value}
+                                        onChange={e => setEditingGoal({ ...editingGoal, current_value: e.target.value })}
+                                    />
+                                </div>
+
+                                {editingGoal.target_value > 0 && (
+                                    <div style={{ marginBottom: '24px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>
+                                            <span>Progresso</span>
+                                            <span>{Math.round(Math.min((editingGoal.current_value / editingGoal.target_value) * 100, 100))}%</span>
+                                        </div>
+                                        <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                                            <div style={{
+                                                height: '100%',
+                                                width: `${Math.min((editingGoal.current_value / editingGoal.target_value) * 100, 100)}%`,
+                                                background: '#10b981',
+                                                transition: 'width 0.3s'
+                                            }}></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Prazo</label>
+                                    <input
+                                        type="date"
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={editingGoal.deadline}
+                                        onChange={e => setEditingGoal({ ...editingGoal, deadline: e.target.value })}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Responsável</label>
+                                    <select
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={editingGoal.responsible_id || ''}
+                                        onChange={e => setEditingGoal({ ...editingGoal, responsible_id: e.target.value })}
+                                    >
+                                        <option value="">Selecione um responsável...</option>
+                                        {companyUsers.map(u => (
+                                            <option key={u.user_id} value={u.user_id}>
+                                                {u.user_name || `Usuário ${u.user_id}`}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#94a3b8' }}>Projeto (Opcional)</label>
+                                    <select
+                                        style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white' }}
+                                        value={editingGoal.project_id || ''}
+                                        onChange={e => setEditingGoal({ ...editingGoal, project_id: e.target.value })}
+                                    >
+                                        <option value="">Nenhum projeto</option>
+                                        {projects.map(p => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowEditGoalModal(false);
+                                            setEditingGoal(null);
+                                        }}
+                                        style={{ background: 'transparent', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        style={{ background: '#6366f1', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                                    >
+                                        Salvar Alterações
                                     </button>
                                 </div>
                             </form>

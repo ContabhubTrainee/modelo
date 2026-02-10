@@ -13,9 +13,10 @@ router.get("/", async (req, res) => {
 
     try {
         const query = `
-            SELECT g.*, u.full_name as responsible_name, u.avatar_url as responsible_avatar
+            SELECT g.*, u.full_name as responsible_name, u.avatar_url as responsible_avatar, p.name as project_name
             FROM goals g
             LEFT JOIN users u ON g.responsible_id = u.id
+            LEFT JOIN projects p ON g.project_id = p.id
             WHERE g.company_id = ?
             ORDER BY g.deadline ASC
         `;
@@ -29,7 +30,7 @@ router.get("/", async (req, res) => {
 
 // Criar nova meta
 router.post("/", async (req, res) => {
-    const { company_id, title, description, target_value, deadline, responsible_id } = req.body;
+    const { company_id, title, description, target_value, current_value, deadline, responsible_id, project_id } = req.body;
 
     if (!company_id || !title || !target_value) {
         return res.status(400).json({ error: "Campos obrigatórios faltando." });
@@ -37,20 +38,47 @@ router.post("/", async (req, res) => {
 
     try {
         const [result] = await pool.query(
-            "INSERT INTO goals (company_id, title, description, target_value, deadline, status, responsible_id) VALUES (?, ?, ?, ?, ?, 'active', ?)",
-            [company_id, title, description, target_value, deadline, responsible_id || null]
+            "INSERT INTO goals (company_id, title, description, target_value, current_value, deadline, status, responsible_id, project_id) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?)",
+            [company_id, title, description, target_value, current_value || 0, deadline, responsible_id || null, project_id || null]
         );
 
         res.status(201).json({
             message: "Meta criada com sucesso!",
             id: result.insertId,
             ...req.body,
-            current_value: 0,
+            current_value: current_value || 0,
             status: 'active'
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Erro ao criar meta." });
+    }
+});
+
+// Atualizar meta completa
+router.put("/:id", async (req, res) => {
+    const { id } = req.params;
+    const { title, description, target_value, current_value, deadline, status, responsible_id, project_id } = req.body;
+
+    try {
+        await pool.query(
+            `UPDATE goals SET 
+                title = ?, 
+                description = ?, 
+                target_value = ?, 
+                current_value = ?, 
+                deadline = ?, 
+                status = ?, 
+                responsible_id = ?,
+                project_id = ? 
+            WHERE id = ?`,
+            [title, description, target_value, current_value, deadline, status, responsible_id || null, project_id || null, id]
+        );
+
+        res.json({ message: "Meta atualizada com sucesso!", id, ...req.body });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao atualizar meta." });
     }
 });
 
@@ -64,9 +92,6 @@ router.put("/:id/progress", async (req, res) => {
     }
 
     try {
-        // Verificar se atingiu a meta para marcar como completed?
-        // Por enquanto vamos apenas atualizar o valor.
-
         await pool.query(
             "UPDATE goals SET current_value = ? WHERE id = ?",
             [current_value, id]
