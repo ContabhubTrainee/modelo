@@ -123,11 +123,14 @@ export default function CompanySettings() {
                 <button onClick={() => router.push(`/admin/dashboard?company_id=${company.id}`)} style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                     <LayoutDashboard size={20} /> Dashboard
                 </button>
-                <button style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <button
+                    onClick={() => router.push(`/admin/projects?company_id=${company.id}`)}
+                    style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                >
                     <Users size={20} /> Projetos
                 </button>
                 <button
-                    onClick={() => router.push('/admin/notes')}
+                    onClick={() => router.push(`/admin/notes?company_id=${company.id}`)}
                     style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
                 >
                     <PieChart size={20} /> Anotações
