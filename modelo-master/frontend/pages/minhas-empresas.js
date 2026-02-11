@@ -100,10 +100,25 @@ export default function MinhasEmpresas() {
         setNewCompanyDescription('');
     };
 
-    const handleLinkQuickly = (e, companyId) => {
+    const handleLinkQuickly = async (e, companyId) => {
         e.stopPropagation();
-        setSelectedCompanyId(companyId);
-        setIsModalOpen(true);
+        setIsLinking(true);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            await axios.post(`${apiUrl}/user-companies`, {
+                user_id: user.id,
+                company_id: companyId,
+                role: 'membro'
+            });
+
+            toast.success("Empresa vinculada com sucesso!");
+            fetchUserCompanies(user.id); // Refresh list
+        } catch (error) {
+            console.error("Erro ao vincular empresa:", error);
+            toast.error("Erro ao vincular empresa.");
+        } finally {
+            setIsLinking(false);
+        }
     };
 
     const handleCreateCompany = async () => {
