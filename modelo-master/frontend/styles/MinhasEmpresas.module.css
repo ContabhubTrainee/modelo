@@ -1,8 +1,52 @@
 .container {
+    --bg-color: #ede9fe;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --card-bg: #1e293b;
+    --card-text: #f8fafc;
+    --card-description: #94a3b8;
+    --card-border: rgba(255, 255, 255, 0.1);
+    --icon-bg: rgba(255, 255, 255, 0.05);
+    --icon-color: #60a5fa;
+    --header-btn-bg: #ffffff;
+    --header-btn-text: #475569;
+    --header-btn-border: #cbd5e1;
+    --unlinked-bg: #1e293b;
+    --unlinked-border: rgba(255, 255, 255, 0.2);
+    --modal-bg: #ffffff;
+    --modal-text: #1e293b;
+    --modal-label: #475569;
+    --modal-input-bg: #ffffff;
+    --modal-input-border: #cbd5e1;
+
     min-height: 100vh;
-    background-color: #f8fafc;
+    background-color: var(--bg-color);
+    /* Light Purple / Violet */
     padding: 2rem;
     font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+.container.darkMode {
+    --bg-color: #0f172a;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --card-bg: #ffffff;
+    --card-text: #1e293b;
+    --card-description: #475569;
+    --card-border: #e2e8f0;
+    --icon-bg: #eff6ff;
+    --icon-color: #3b82f6;
+    --header-btn-bg: #1e293b;
+    --header-btn-text: #f1f5f9;
+    --header-btn-border: rgba(255, 255, 255, 0.1);
+    --unlinked-bg: #ffffff;
+    --unlinked-border: #cbd5e1;
+    --modal-bg: #1e293b;
+    --modal-text: #f1f5f9;
+    --modal-label: #94a3b8;
+    --modal-input-bg: #0f172a;
+    --modal-input-border: rgba(255, 255, 255, 0.1);
 }
 
 .header {
@@ -16,12 +60,12 @@
 .title {
     font-size: 2rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
 .subtitle {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 1.1rem;
 }
 
@@ -34,20 +78,22 @@
 }
 
 .card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 16px;
     padding: 2rem;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    border: 1px solid var(--card-border);
     cursor: pointer;
     text-decoration: none;
     display: block;
+    color: var(--card-text);
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    border-color: #6366f1;
 }
 
 .cardHeader {
@@ -60,27 +106,34 @@
 .iconWrapper {
     width: 48px;
     height: 48px;
-    background: #eff6ff;
+    background: var(--icon-bg);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #3b82f6;
+    color: var(--icon-color);
 }
 
 .companyName {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--card-text);
+}
+
+.companyDescription {
+    color: var(--card-description);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    min-height: 40px;
 }
 
 .roleTag {
-    background: #f1f5f9;
+    background: #3b82f6;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #475569;
+    color: white;
     width: fit-content;
     margin-top: 1rem;
 }
@@ -90,13 +143,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f8fafc;
+    background-color: var(--bg-color);
 }
 
 .loadingSpinner {
     width: 40px;
     height: 40px;
-    border: 3px solid #e2e8f0;
+    border: 3px solid var(--card-border);
     border-radius: 50%;
     border-top-color: #3b82f6;
     animation: spin 1s linear infinite;
@@ -126,18 +179,18 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: white;
-    border: 1px solid #cbd5e1;
+    background: var(--header-btn-bg);
+    border: 1px solid var(--header-btn-border);
     border-radius: 8px;
-    color: #475569;
+    color: var(--header-btn-text);
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .logoutButton:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: var(--bg-color);
+    color: var(--text-primary);
 }
 
 .linkButton {
@@ -158,7 +211,42 @@
     background: #2563eb;
 }
 
-/* Modal Styles */
+.unlinkButton {
+    background: rgba(239, 68, 68, 0.1);
+    border: none;
+    color: #f87171;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.unlinkButton:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.themeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--header-btn-bg);
+    border: 1px solid var(--header-btn-border);
+    border-radius: 8px;
+    color: var(--header-btn-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.themeButton:hover {
+    background: var(--bg-color);
+}
+
 .modalOverlay {
     position: fixed;
     top: 0;
@@ -181,13 +269,13 @@
 }
 
 .modalContent {
-    background: white;
+    background: var(--modal-bg);
     border-radius: 16px;
     padding: 2rem;
     width: 100%;
     max-width: 500px;
     transform: translateY(20px);
-    transition: transform 0.2s;
+    transition: all 0.2s;
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
 }
 
@@ -205,7 +293,7 @@
 .modalTitle {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--modal-text);
 }
 
 .closeButton {
@@ -237,16 +325,17 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #475569;
+    color: var(--modal-label);
 }
 
 .select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--modal-input-border);
+    background: var(--modal-input-bg);
     border-radius: 8px;
     font-size: 1rem;
-    color: #1e293b;
+    color: var(--modal-text);
     outline: none;
     transition: border-color 0.2s;
 }
@@ -264,10 +353,10 @@
 
 .cancelButton {
     padding: 0.75rem 1.5rem;
-    background: white;
-    border: 1px solid #cbd5e1;
+    background: var(--modal-bg);
+    border: 1px solid var(--modal-input-border);
     border-radius: 8px;
-    color: #475569;
+    color: var(--modal-label);
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
@@ -295,4 +384,48 @@
 .confirmButton:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.unlinkedCard {
+    border-style: dashed;
+    border-color: var(--unlinked-border);
+    background: var(--unlinked-bg);
+}
+
+.quickLinkButton {
+    background: var(--icon-bg);
+    border: none;
+    color: var(--icon-color);
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.quickLinkButton:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.cardActionButton {
+    width: 100%;
+    padding: 0.75rem;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 1rem;
+}
+
+.cardActionButton:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
 }

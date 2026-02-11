@@ -11,6 +11,7 @@ export default function ProjectsPage() {
     const [projects, setProjects] = useState([]);
     const [companyUsers, setCompanyUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userRole, setUserRole] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [editingProject, setEditingProject] = useState(null);
     const [newProject, setNewProject] = useState({ name: '', description: '', user_ids: [] });
@@ -51,6 +52,9 @@ export default function ProjectsPage() {
                 return;
             }
 
+            // Set user role
+            setUserRole(linkRes.data[0].role);
+
             // 2. Buscar dados da empresa
             const companyRes = await axios.get(`${apiUrl}/companies/${companyId}`);
             setCompany(companyRes.data);
@@ -66,6 +70,8 @@ export default function ProjectsPage() {
             router.push('/minhas-empresas');
         }
     };
+
+    const isAdminOrDono = ['dono', 'administrador'].includes(userRole?.toLowerCase());
 
     const fetchProjects = async (companyId) => {
         try {
@@ -139,6 +145,7 @@ export default function ProjectsPage() {
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: `/admin/dashboard?company_id=${company.id}` },
         { icon: FolderKanban, label: 'Projetos', path: `/admin/projects?company_id=${company.id}`, active: true },
+        { icon: Users, label: 'Membros', path: `/admin/members?company_id=${company.id}` },
         { icon: PieChart, label: 'Anotações', path: `/admin/notes?company_id=${company.id}` },
         { icon: Settings, label: 'Configurações', path: `/admin/settings?company_id=${company.id}` },
     ];
@@ -210,13 +217,15 @@ export default function ProjectsPage() {
                         <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px' }}>Projetos da Empresa</h1>
                         <p style={{ color: '#64748b' }}>Gerencie os projetos vinculados às suas metas.</p>
                     </div>
-                    <button
-                        onClick={() => setShowModal(true)}
-                        style={{ background: '#6366f1', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                        <Plus size={20} />
-                        Novo Projeto
-                    </button>
+                    {isAdminOrDono && (
+                        <button
+                            onClick={() => setShowModal(true)}
+                            style={{ background: '#6366f1', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        >
+                            <Plus size={20} />
+                            Novo Projeto
+                        </button>
+                    )}
                 </header>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
@@ -229,14 +238,16 @@ export default function ProjectsPage() {
                                     </div>
                                     <h3 style={{ fontSize: '18px', fontWeight: 'bold' }}>{project.name}</h3>
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => setEditingProject(project)} style={{ background: 'transparent', border: 'none', color: '#6366f1', cursor: 'pointer', padding: '4px' }}>
-                                        <Pencil size={18} />
-                                    </button>
-                                    <button onClick={() => handleDeleteProject(project.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
-                                        <Trash size={18} />
-                                    </button>
-                                </div>
+                                {isAdminOrDono && (
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button onClick={() => setEditingProject(project)} style={{ background: 'transparent', border: 'none', color: '#6366f1', cursor: 'pointer', padding: '4px' }}>
+                                            <Pencil size={18} />
+                                        </button>
+                                        <button onClick={() => handleDeleteProject(project.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
+                                            <Trash size={18} />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                             <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.6', marginBottom: '20px', minHeight: '44px' }}>
                                 {project.description || 'Nenhuma descrição fornecida.'}

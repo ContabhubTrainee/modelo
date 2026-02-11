@@ -10,6 +10,10 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  connectTimeout: 10000, // 10 seconds
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+  dateStrings: true // Para evitar problemas de fuso horário com datas BigInt (embora não sejam BigInt)
 });
 
 module.exports = pool.promise();

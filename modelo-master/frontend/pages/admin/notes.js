@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import axios from 'axios';
 import {
     ArrowLeft,
     BookOpen,
@@ -11,128 +12,153 @@ import {
     List,
     Bell,
     Target,
-    ChevronDown
+    ChevronDown,
+    LayoutDashboard,
+    FolderKanban,
+    Users,
+    PieChart,
+    Settings,
+    LogOut
 } from 'lucide-react';
 
 export default function NotesPage() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState('todos');
-    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+    const [user, setUser] = useState(null);
+    const [company, setCompany] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!router.isReady) return;
+
+        const userData = localStorage.getItem('userData');
+        if (!userData) {
+            router.push('/login');
+            return;
+        }
+
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+
+        const { company_id } = router.query;
+        if (!company_id) {
+            router.push('/minhas-empresas');
+            return;
+        }
+
+        // Fetch company details to be consistent with others
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        axios.get(`${apiUrl}/companies/${company_id}`)
+            .then(res => {
+                setCompany(res.data);
+                setLoading(false);
+            })
+            .catch(() => {
+                router.push('/minhas-empresas');
+            });
+
+    }, [router.isReady, router.query]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        router.push('/login');
+    };
+
+    if (loading || !user || !company) return <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>Carregando...</div>;
+
+    const navItems = [
+        { icon: LayoutDashboard, label: 'Dashboard', path: `/admin/dashboard?company_id=${company.id}` },
+        { icon: FolderKanban, label: 'Projetos', path: `/admin/projects?company_id=${company.id}` },
+        { icon: Users, label: 'Membros', path: `/admin/members?company_id=${company.id}` },
+        { icon: PieChart, label: 'Anotações', path: `/admin/notes?company_id=${company.id}`, active: true },
+        { icon: Settings, label: 'Configurações', path: `/admin/settings?company_id=${company.id}` },
+    ];
 
     return (
-        <div style={{ background: '#0f172a', minHeight: '100vh', color: '#fff', padding: '40px' }}>
+        <div style={{ background: '#0f172a', minHeight: '100vh', color: '#fff', display: 'flex', fontFamily: 'Inter, sans-serif' }}>
             <Head>
-                <title>Meu Diário | AURA 8</title>
+                <title>Meu Diário | {company.name}</title>
             </Head>
 
-            {/* Header Section */}
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            {/* Sidebar */}
+            <aside style={{ width: '260px', borderRight: '1px solid rgba(255,255,255,0.1)', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px', color: '#6366f1' }}>AURA 8</div>
+                <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    {company.name}
+                </div>
+
+                {navItems.map((item, index) => (
                     <button
-                        onClick={() => router.back()}
-                        style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        key={index}
+                        onClick={() => router.push(item.path)}
+                        style={{
+                            background: item.active ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                            color: item.active ? '#818cf8' : '#94a3b8',
+                            border: 'none',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            cursor: 'pointer'
+                        }}
                     >
-                        <ArrowLeft size={24} />
+                        <item.icon size={20} /> {item.label}
                     </button>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
-                            <BookOpen size={24} />
-                        </div>
-                        <div>
-                            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Meu Diário</h1>
-                            <div style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>Organize suas anotações, metas e lembretes em um só lugar</div>
-                        </div>
+                ))}
+
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <button
+                        onClick={() => router.push('/minhas-empresas')}
+                        style={{ background: 'transparent', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                    >
+                        <ArrowLeft size={20} /> Trocar Empresa
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        style={{ background: 'transparent', color: '#ef4444', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                    >
+                        <LogOut size={20} /> Sair
+                    </button>
+                </div>
+
+                <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                        {user.full_name[0]}
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '14px', fontWeight: '600' }}>{user.full_name}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>Usuário</div>
                     </div>
                 </div>
+            </aside>
 
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '500' }}>
-                        <Plus size={18} /> Anotação
-                    </button>
-                    <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '500' }}>
-                        <Plus size={18} /> Meta
-                    </button>
-                    <button style={{ background: '#d946ef', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '500' }}>
-                        <Plus size={18} /> Lembrete
-                    </button>
-                </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div style={{ marginBottom: '32px' }}>
-                <div style={{ position: 'relative', marginBottom: '24px' }}>
-                    <Search size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                    <input
-                        type="text"
-                        placeholder="Buscar..."
-                        style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '16px 16px 16px 50px', color: '#fff', fontSize: '16px' }}
-                    />
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Main Content */}
+            <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
+                <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                    <div>
+                        <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px' }}>Meu Diário</h1>
+                        <p style={{ color: '#64748b' }}>Organize suas anotações, metas e lembretes em um só lugar.</p>
+                    </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        {[
-                            { id: 'todos', label: 'Todos' },
-                            { id: 'anotacoes', label: 'Anotações', icon: BookOpen },
-                            { id: 'metas', label: 'Metas', icon: Target },
-                            { id: 'lembretes', label: 'Lembretes', icon: Bell }
-                        ].map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                style={{
-                                    background: activeTab === tab.id ? '#10b981' : 'transparent',
-                                    color: activeTab === tab.id ? '#fff' : '#94a3b8',
-                                    border: activeTab === tab.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                                    padding: '10px 20px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontWeight: '500',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                {tab.icon && <tab.icon size={16} />}
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <button style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            Todos os meses <ChevronDown size={16} />
+                        <button style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '500' }}>
+                            <Plus size={18} /> Anotação
                         </button>
-                        <button style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            Todos os anos <ChevronDown size={16} />
+                        <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '500' }}>
+                            <Plus size={18} /> Meta
                         </button>
-                        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '2px' }}>
-                            <button
-                                onClick={() => setViewMode('grid')}
-                                style={{ background: viewMode === 'grid' ? '#10b981' : 'transparent', border: 'none', color: '#fff', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}
-                            >
-                                <LayoutGrid size={18} />
-                            </button>
-                            <button
-                                onClick={() => setViewMode('list')}
-                                style={{ background: viewMode === 'list' ? '#10b981' : 'transparent', border: 'none', color: '#fff', padding: '8px', borderRadius: '6px', cursor: 'pointer' }}
-                            >
-                                <List size={18} />
-                            </button>
-                        </div>
                     </div>
-                </div>
-            </div>
+                </header>
 
-            {/* Empty State */}
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
-                    <Calendar size={40} />
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+                        <Calendar size={40} />
+                    </div>
+                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#fff', marginBottom: '8px' }}>Nenhum item encontrado</h3>
+                    <p>Comece criando sua primeira anotação ou meta.</p>
                 </div>
-                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#fff', marginBottom: '8px' }}>Nenhum item encontrado</h3>
-                <p>Comece criando sua primeira anotação, meta ou lembrete.</p>
-            </div>
+            </main>
         </div>
     );
 }

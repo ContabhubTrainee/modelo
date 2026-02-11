@@ -22,12 +22,15 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Insere o usuário no banco de dados
-    await pool.query(
+    const [result] = await pool.query(
       "INSERT INTO users (email, password_hash, full_name) VALUES (?, ?, ?)",
       [email, hashedPassword, full_name]
     );
 
-    res.status(201).json({ message: "Usuário cadastrado com sucesso!" });
+    res.status(201).json({
+      message: "Usuário cadastrado com sucesso!",
+      userId: result.insertId
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erro ao registrar usuário." });
