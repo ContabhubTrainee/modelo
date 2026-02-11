@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import {
     LayoutDashboard, Users, Settings, PieChart, LogOut, ArrowLeft, Save,
-    Store, Key, Lock, MessageSquare, Bell, Keyboard, HelpCircle, ChevronRight
+    Store, Key, Lock, MessageSquare, Bell, Keyboard, HelpCircle, ChevronRight,
+    FolderKanban
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -127,7 +128,13 @@ export default function CompanySettings() {
                     onClick={() => router.push(`/admin/projects?company_id=${company.id}`)}
                     style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
                 >
-                    <Users size={20} /> Projetos
+                    <FolderKanban size={20} /> Projetos
+                </button>
+                <button
+                    onClick={() => router.push(`/admin/members?company_id=${company.id}`)}
+                    style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '12px', borderRadius: '8px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                >
+                    <Users size={20} /> Membros
                 </button>
                 <button
                     onClick={() => router.push(`/admin/notes?company_id=${company.id}`)}

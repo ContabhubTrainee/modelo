@@ -185,6 +185,7 @@ export default function AdminDashboard() {
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: `/admin/dashboard?company_id=${company.id}`, active: true },
         { icon: FolderKanban, label: 'Projetos', path: `/admin/projects?company_id=${company.id}` },
+        { icon: Users, label: 'Membros', path: `/admin/members?company_id=${company.id}` },
         { icon: PieChart, label: 'Anotações', path: `/admin/notes?company_id=${company.id}` },
         { icon: Settings, label: 'Configurações', path: `/admin/settings?company_id=${company.id}` },
     ];
@@ -270,7 +271,7 @@ export default function AdminDashboard() {
                     {/* Existing cards */}
                     {[
                         { label: 'Projetos Ativos', value: projects.length.toString(), color: '#6366f1' },
-                        { label: 'Conversões', value: '8', color: '#10b981' },
+                        { label: 'Metas Concluidas', value: '8', color: '#10b981' },
                         { label: 'Receita Est.', value: 'R$ 4.200', color: '#f59e0b' },
                         { label: 'Tempo Médio', value: '4m 12s', color: '#ec4899' }
                     ].map((stat, i) => (
